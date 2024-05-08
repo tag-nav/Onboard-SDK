@@ -303,7 +303,7 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   int controlFreqInHz              = 50; // Hz
   int cycleTimeInMs                = 1000 / controlFreqInHz;
   int outOfControlBoundsTimeLimit  = 10 * cycleTimeInMs; // 10 cycles
-  int withinControlBoundsTimeReqmt = 50 * cycleTimeInMs; // 50 cycles
+  int withinControlBoundsTimeReqmt = 10 * cycleTimeInMs; // 50 cycles
   int pkgIndex;
 
   char func[50];
@@ -444,14 +444,29 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
   else
     yCmd = 0;
 
-  if (!vehicle->isM100() && !vehicle->isLegacyM600())
+ if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
-    zCmd = currentBroadcastGP.height + zOffsetDesired; //Since subscription cannot give us a relative height, use broadcast.
+    if (zOffsetDesired > 0)
+      zCmd = (zOffsetDesired < speedFactor) ? currentBroadcastGP.height + zOffsetDesired : currentBroadcastGP.height + speedFactor;
+    else if (zOffsetDesired < 0)
+      zCmd =
+      (zOffsetDesired > -1 * speedFactor) ? currentBroadcastGP.height + zOffsetDesired : currentBroadcastGP.height -1 * speedFactor;
+    else
+      zCmd = currentBroadcastGP.height;
   }
   else
   {
     zCmd = currentBroadcastGP.height + zOffsetDesired;
   }
+
+  // if (!vehicle->isM100() && !vehicle->isLegacyM600())
+  // {
+  //   zCmd = currentBroadcastGP.height + zOffsetDesired; //Since subscription cannot give us a relative height, use broadcast.
+  // }
+  // else
+  // {
+  //   zCmd = currentBroadcastGP.height + zOffsetDesired;
+  // }
 
   //! Main closed-loop receding setpoint position control
   while (elapsedTimeInMs < timeoutInMilSec)
@@ -497,6 +512,11 @@ moveByPositionOffset(Vehicle *vehicle, float xOffsetDesired,
     if (std::abs(yOffsetRemaining) < speedFactor)
     {
       yCmd = yOffsetRemaining;
+    }
+
+    if (std::abs(zOffsetRemaining) < speedFactor)
+    {
+      zCmd = currentBroadcastGP.height + zOffsetRemaining;
     }
 
     if (vehicle->isM100() && std::abs(xOffsetRemaining) < posThresholdInM &&

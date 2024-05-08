@@ -101,11 +101,11 @@ int main(int argc, char** argv) {
       flightSample->monitoredTakeoff();
 
       DSTATUS("Take off over!\n");
-      flightSample->moveByPositionOffset((FlightSample::Vector3f){0, 6, 6}, 30, 0.8, 1);
+      flightSample->moveByPositionOffset((FlightSample::Vector3f){0, 0, 0.8}, 0, 0.8, 1);
       DSTATUS("Step 1 over!\n");
-      flightSample->moveByPositionOffset((FlightSample::Vector3f){6, 0, -3}, -30, 0.8, 1);
+      flightSample->moveByPositionOffset((FlightSample::Vector3f){-20, 0, 3}, 0, 0.8, 1);
       DSTATUS("Step 2 over!\n");
-      flightSample->moveByPositionOffset((FlightSample::Vector3f){-6, -6, 0}, 0, 0.8, 1);
+      flightSample->moveByPositionOffset((FlightSample::Vector3f){20, 0, -3}, 0, 0.8, 1);
       DSTATUS("Step 3 over!\n");
       flightSample->monitoredLanding();
       break;
